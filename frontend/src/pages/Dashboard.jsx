@@ -21,20 +21,36 @@ const navigate = useNavigate();
 
   const [newPost, setNewPost] = useState({ title: "", content: "",author: "" });
 const [summary, setSummary]=useState("")
-  const handleCreate = () => {
+  // Fetch user posts on mount
+  // useEffect(() => {
+  //   if (!userId) return;
+  //   fetchPostByUser(userId);
+  // }, [fetchPostByUser, userId]);
+
+  const handleCreate = async() => {
     // addPost(newPost);
-    createPost(newPost);
+    // createPost(newPost);
     // setPosts([...posts, { id: posts.length + 1, ...newPost }]);
     // setNewPost({ title: "", content: "" });
+     const success = await createPost(newPost); // wait for post creation
+  if (success) {
+    setNewPost({ title: "", content: "", author: "" }); // clear form
+    fetchPostByUser(userId); // refresh userPosts
+  }
   };
   const generateSummary = async () => {
  console.log("Generating summary for:", newPost.content);
 };
 const handledelete = async (e,postId) => {
+    e.stopPropagation(); 
+  //   setUserPosts((prev) =>
+  //   prev.filter((entry) => (entry._id || entry.post?._id) !== postId)
+  // );
   try {
-            e.stopPropagation(); 
-    deletePost(postId);
+          
+    await deletePost(postId);
     console.log("Post deleted successfully");
+    fetchPostByUser(userId);
   } catch (error) {
     console.error("Error deleting post:", error);
   }}
@@ -106,8 +122,10 @@ useEffect(() => {
       {userPosts.length === 0 ? (
   <p>No posts found.</p>
 ) : (
-      userPosts.map((entry) => {
+      userPosts.filter((entry)=>entry?._id || entry?.post?._id).
+      map((entry) => {
          const p = entry.post || entry;
+      // userPosts.map((p) => {
          return(
         
         <div key={p._id} className="border p-4 mb-4" onClick={() => handlepost(p)}>
@@ -115,7 +133,7 @@ useEffect(() => {
           <h4 className="text-lg font-semibold">{p.title}</h4>
           {console.log("Post content:", p.title) }
           {console.log("Post content:", p.content) }
-          <p className="whitespace-normal break-words break-all">{p.content.slice(0,60)}</p>
+          <p className="whitespace-normal break-words break-all">{p.content?.slice(0,60)}</p>
           <button className="text-blue-500 mt-2 g" onClick={(e) => handledelete(e, p._id)}>delete</button>
         </div>
       );}))} 

@@ -45,6 +45,7 @@ export const usePostStore = create((set,get) => ({
       console.log("Post created:", response.data);
       set((state) => ({
         posts: [...state.posts, response.data],
+        userposts: [...state.userposts, response.data],
         loading: false,
       }));
       toast.success("Post added successfully");
@@ -84,10 +85,19 @@ export const usePostStore = create((set,get) => ({
     try {
       // Fix endpoint: your backend expects DELETE /api/carts/:userId with productId in body
       await axiosInstance.delete(`/posts/${postId}`);
-      set((prevState) => ({
-        userposts: prevState.posts.filter((item) => item._id !== postId),
+      // set((prevState) => ({
+      //   userposts: prevState.posts.filter((item) => item._id !== postId),
+      // }));
+      // get().calculateTotals();
+   set((state) => ({
+        // userposts: state.userposts.filter((item) => {
+        //  const id= item._id || item.post?._id; // handle both _id and id
+        //  return id !== postId;
+      
+        // } ),
+        userposts: state.userposts.filter((item) => item._id !== postId)
+     
       }));
-      get().calculateTotals();
       toast.success("Product removed from posts");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to remove product");

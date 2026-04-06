@@ -39,6 +39,11 @@ const deletePost = async (req, res) => {
     if (!deletedPost) {
       return res.status(404).json({ message: 'Post not found' });
     }
+       // Optional: remove this post from any user's posts array
+    await User.updateMany(
+      { "posts.post": id },
+      { $pull: { posts: { post: id } } }
+    );
     res.status(200).json({ message: 'Post deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting post', error });
