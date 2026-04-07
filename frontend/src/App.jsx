@@ -14,6 +14,7 @@ import Signup from "./pages/Signup";
 import Header from "./components/Header";
 import { useUserStore } from "./store/userStore";
 import { User } from "lucide-react";
+import Footer from "./components/Footer";
 const PrivateRoute = ({ element }) => {
   const { user } = useUserStore();
   console.log("user",user)
@@ -24,7 +25,9 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+          <div className="flex flex-col min-h-screen">
         <Header />
+        <main className="flex-grow bg-gray-100">
         <Routes>
           <Route path="/" element={<Home />} />
           {/* <Route path="/home" element={<Home />} /> */}
@@ -35,6 +38,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
+     </main>
+     <Footer />
+     </div>
       </Router>
     </AuthProvider>
   );

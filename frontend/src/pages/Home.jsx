@@ -45,7 +45,8 @@ console.log("post author",posts.author);
       <input
         type="text"
         placeholder="Search posts..."
-        className="border p-2 mb-4 w-full"
+          className="w-full p-2 mb-4 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        // className="border p-2 mb-4 w-full"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -54,7 +55,7 @@ console.log("post author",posts.author);
 ) : (
   <div className=" items-start justify-between grid grid-cols-2 gap-6">
      {filteredPosts.map((post) => (
-        <div key={post._id} onClick={()=>handlepost(post)}className="border p-4 mb-4 rounded w-full shadow hover:bg-blue-300 h-40 cursor-pointer ">
+        <div key={post._id} onClick={()=>handlepost(post)}className="border p-4 mb-4 rounded w-full shadow hover:bg-gray-200 hover:shadow-xl h-40 cursor-pointer transition duration-300">
           <h3 className="text-xl font-semibold">{post.title}</h3>
           <p className="whitespace-normal break-words break-all">{post.content.slice(0,30)}...</p>
           {console.log("Post content:", post.author)}
