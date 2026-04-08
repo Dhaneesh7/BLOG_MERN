@@ -41,7 +41,11 @@ export const usePostStore = create((set,get) => ({
                try {
 
       set({ loading: true });
-      const response = await axiosInstance.post(`/posts/${userId}`, postData); // adjust to your backend API
+      const response = await axiosInstance.post(`/posts/${userId}`, postData,{
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }); // adjust to your backend API
       console.log("Post created:", response.data);
       set((state) => ({
         posts: [...state.posts, response.data],
@@ -76,6 +80,19 @@ export const usePostStore = create((set,get) => ({
       console.error("Failed to fetch user posts", error);
     } 
   },
+ updatePost: async (id, updatedData) => {
+  try {
+    const res = await axiosInstance.put(`/posts/${id}`, updatedData,{
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}, 
    deletePost: async (postId) => {
     const userId = useUserStore.getState().user?._id;
     if (!userId) {
@@ -95,7 +112,7 @@ export const usePostStore = create((set,get) => ({
         //  return id !== postId;
       
         // } ),
-        userposts: state.userposts.filter((item) => item._id !== postId)
+        userposts: state.userposts.filter((item) => (item._id || item.post?._id) !== postId),
      
       }));
       toast.success("Product removed from posts");

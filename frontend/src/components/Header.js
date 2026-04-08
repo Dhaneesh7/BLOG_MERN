@@ -13,7 +13,7 @@ const logout= useUserStore((state)=>state.logout);
   };
 
   return (
-    <nav className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 flex justify-between">
+    <nav className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 flex justify-between fixed w-full">
       <h1 className="text-xl font-bold">My Blog</h1>
       <ul className="hidden md:flex gap-6">
       <li> <Link to={`/`} className="text-white-500">home</Link></li>

@@ -5,8 +5,9 @@ import { useUserStore } from "../store/userStore";
 // import { deletePost } from "../../../Backend/controllers.js/postControllers";
 
 const Dashboard = () => {
-  const{addPost,createPost,deletePost}=usePostStore();
-  
+  const{addPost,createPost,deletePost,updatePost}=usePostStore();
+  const [editingPostId, setEditingPostId] = useState(null);
+const [editPost, setEditPost] = useState({ title: "", content: "", author: "" });
   const [search, setSearch] = useState("");
 
   const user = useUserStore((s) => s.user);
@@ -19,7 +20,7 @@ const Dashboard = () => {
 const navigate = useNavigate();
   const userPosts = usePostStore((s) => s.userposts);
 
-  const [newPost, setNewPost] = useState({ title: "", content: "",author: "" });
+  const [newPost, setNewPost] = useState({ title: "", content: "",author: "" ,image: null});
 const [summary, setSummary]=useState("")
   // Fetch user posts on mount
   // useEffect(() => {
@@ -32,12 +33,50 @@ const [summary, setSummary]=useState("")
     // createPost(newPost);
     // setPosts([...posts, { id: posts.length + 1, ...newPost }]);
     // setNewPost({ title: "", content: "" });
-     const success = await createPost(newPost); // wait for post creation
+     const formData = new FormData();
+
+  formData.append("title", newPost.title);
+  formData.append("content", newPost.content);
+  formData.append("author", newPost.author);
+
+  if (newPost.image) {
+    formData.append("image", newPost.image);
+  }
+
+     const success = await createPost(formData); // wait for post creation
   if (success) {
-    setNewPost({ title: "", content: "", author: "" }); // clear form
+    setNewPost({ title: "", content: "", author: "" ,image: null}); // clear form
     fetchPostByUser(userId); // refresh userPosts
   }
   };
+  const handleEditClick = (post) => {
+  setEditingPostId(post._id);
+  setEditPost({
+    title: post.title,
+    content: post.content,
+    author: post.author,
+  });
+};
+const handleUpdate = async () => {
+const formData = new FormData();
+
+formData.append("title", editPost.title);
+formData.append("content", editPost.content);
+formData.append("author", editPost.author);
+
+if (editPost.image) {
+  formData.append("image", editPost.image);
+}
+
+const success = await updatePost(editingPostId, formData);
+  // const success = await updatePost(editingPostId, editPost);
+
+  if (success) {
+    setEditingPostId(null);
+    setEditPost({ title: "", content: "", author: "" });
+    fetchPostByUser(userId);
+  }
+};
   const generateSummary = async () => {
  console.log("Generating summary for:", newPost.content);
 };
@@ -95,6 +134,14 @@ useEffect(() => {
         value={newPost.content}
         onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
       />
+      <input
+  type="file"
+  accept="image/*"
+  className="border p-2 w-3/5 mb-2 ml-4 mt-2"
+  onChange={(e) =>
+    setNewPost({ ...newPost, image: e.target.files[0] })
+  }
+/>
             <input
         type="text"
         placeholder="author"
@@ -102,6 +149,13 @@ useEffect(() => {
         value={newPost.author}
         onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
       />
+      {newPost.image && (
+  <img
+    src={URL.createObjectURL(newPost.image)}
+    alt="preview"
+    className="w-40 h-40 object-cover ml-4 mb-2 rounded"
+  />
+)}
             <div className="mt-2 flex space-x-2 ml-5 ">
       <button onClick={handleCreate} className="bg-blue-500 text-white px-4 py-2 mb-2 ">
         Add Post
@@ -128,15 +182,104 @@ useEffect(() => {
       // userPosts.map((p) => {
          return(
         
-        <div key={p._id} className="border p-4 mb-4" onClick={() => handlepost(p)}>
+        <div key={p._id} className="border p-4 mb-4"
+        //  onClick={() => handlepost(p)}
+         >{p.image && (
+  <img
+    src={p.image}
+    alt="post"
+    className="w-full h-60 object-cover mb-2 rounded"
+  />
+)}
           {console.log("Post:", p)}
+            {editingPostId === p._id ? (
+        <>
+          <input
+            className="border p-2 w-full mb-2"
+            value={editPost.title}
+            onChange={(e) =>
+              setEditPost({ ...editPost, title: e.target.value })
+            }
+          />
+          <textarea
+            className="border p-2 w-full mb-2"
+            value={editPost.content}
+            onChange={(e) =>
+              setEditPost({ ...editPost, content: e.target.value })
+            }
+          />
+          <input
+            className="border p-2 w-full mb-2"
+            value={editPost.author}
+            onChange={(e) =>
+              setEditPost({ ...editPost, author: e.target.value })
+            }
+          />
+          {p.image && (
+  <img
+    src={p.image}
+    alt="post"
+    className="w-full h-60 object-cover mb-2 rounded"
+  />
+)}
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) =>
+    setEditPost({ ...editPost, image: e.target.files[0] })
+  }
+/>
+
+          <button
+            // onClick={handleUpdate}
+              onClick={(e) => {
+    e.stopPropagation();
+    handleUpdate();
+  }}
+            className="bg-green-500 text-white px-3 py-1 mr-2"
+          >
+            Save
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); 
+              setEditingPostId(null);}
+            }
+            className="bg-gray-500 text-white px-3 py-1"
+          >
+            Cancel
+          </button>
+        </>
+      ) : (
+        <>
+        <div onClick={() => handlepost(p)} className="cursor-pointer">
           <h4 className="text-lg font-semibold">{p.title}</h4>
           {console.log("Post content:", p.title) }
           {console.log("Post content:", p.content) }
           <p className="whitespace-normal break-words break-all">{p.content?.slice(0,60)}</p>
-          <button className="text-blue-500 mt-2 g" onClick={(e) => handledelete(e, p._id)}>delete</button>
+          </div>
+           <div className="mt-2 space-x-2">
+
+             <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditClick(p);
+              }}
+              className="bg-yellow-500 text-white px-3 py-1"
+            >
+              Edit
+            </button>
+          <button className="text-blue-500 mt-2 g" onClick={(e) => {
+            e.stopPropagation();
+            handledelete(e, p._id);
+          }}>delete</button>
+          </div>
+        </>
+      )}
         </div>
-      );}))} 
+      )}))
+    }
     </div>
   );
 };

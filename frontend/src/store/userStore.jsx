@@ -2,13 +2,14 @@ import { create } from "zustand";
 import axiosInstance from "../lib/axios"
 import { toast } from "react-hot-toast";
 import { Navigate } from "react-router-dom";
+import { Phone } from "lucide-react";
 
 export const useUserStore = create((set, get) => ({
 	user: null,
 	loading: false,
 	checkingAuth: true,
 
-	signup: async ({ name, email, password, confirmPassword, role }) => {
+	signup: async ({ name, email, password, confirmPassword, Phone }) => {
 		set({ loading: true });
 
 		if (password !== confirmPassword) {
@@ -17,7 +18,7 @@ export const useUserStore = create((set, get) => ({
 		}
 
 		try {
-			const res = await axiosInstance.post("/auth/signup", { name, email, password ,role });
+			const res = await axiosInstance.post("/auth/signup", { name, email, password ,Phone });
 			if (res?.data) {
 				set({ user: res.data, loading: false });
 
