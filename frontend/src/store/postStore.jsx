@@ -120,4 +120,13 @@ export const usePostStore = create((set,get) => ({
       toast.error(error?.response?.data?.message || "Failed to remove product");
     }
   },
+  generateSummary: async (content) => {
+    try {
+      const response = await axiosInstance.post("/api/ai/summary", { content });
+      return response.data.summary;
+    } catch (error) {
+      console.error("Error generating summary:", error);
+      return "you exceed the free limit, try again later";
+    }
+  },
 }));

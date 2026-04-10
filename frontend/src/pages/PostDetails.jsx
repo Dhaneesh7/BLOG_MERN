@@ -29,6 +29,15 @@ const navigate=useNavigate();
       {post ? (
         <>
           <h2 className="text-2xl font-bold font-color-black mb-4">{post.title}</h2>
+          <div className="flex items-center mt-2 justify-center">
+           {post.image && (
+              <img
+                src={post.image}
+                alt={post.title}
+                className=" w-4/5 h-3/5 object-cover rounded"
+              />
+            )}
+            </div>
           <p className="whitespace-normal break-words break-all">{post.content}</p>
           <button onClick={handleback}>back</button>
         </>

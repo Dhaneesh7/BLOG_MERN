@@ -10,7 +10,7 @@ const dotenv = require('dotenv');
 const Post = require('./routes/Posts');
 const User = require('./routes/Users');
 const Auth= require('./routes/Auth')
-// const aiRoutes = require('./routes/ai');
+const aiRoutes = require('./routes/ai');
 // import Post from './routes/Posts';
 const connecttodb = require('./config/db');
 // import connecttodb from './config/db';
@@ -30,5 +30,6 @@ connecttodb();
 app.use('/api/posts',Post);
 app.use('/api/users',User);
 app.use('/api/auth',Auth);
+app.use('/api/ai',aiRoutes);
 const PORT = process.env.PORT || 6000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

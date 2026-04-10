@@ -5,7 +5,7 @@ import { useUserStore } from "../store/userStore";
 // import { deletePost } from "../../../Backend/controllers.js/postControllers";
 
 const Dashboard = () => {
-  const{addPost,createPost,deletePost,updatePost}=usePostStore();
+  const{addPost,createPost,deletePost,updatePost,generateSummary}=usePostStore();
   const [editingPostId, setEditingPostId] = useState(null);
 const [editPost, setEditPost] = useState({ title: "", content: "", author: "" });
   const [search, setSearch] = useState("");
@@ -77,14 +77,23 @@ const success = await updatePost(editingPostId, formData);
     fetchPostByUser(userId);
   }
 };
-  const generateSummary = async () => {
- console.log("Generating summary for:", newPost.content);
-};
+const handleGenarateSummary = async () => {
+  if (!newPost.content) {
+    alert("Enter content first");
+    return;
+  }
+
+  const res = await generateSummary(newPost.content);
+  setSummary(res);
+  }
+
+
 const handledelete = async (e,postId) => {
     e.stopPropagation(); 
   //   setUserPosts((prev) =>
   //   prev.filter((entry) => (entry._id || entry.post?._id) !== postId)
   // );
+
   try {
           
     await deletePost(postId);
@@ -116,36 +125,38 @@ useEffect(() => {
     
   };
   return (
-    <div className="p-6 border-bold p-1">
-      <h2 className="text-2xl font-bold mb-4">Manage Your Posts</h2>
+    // <div className="p-6 border-bold p-1 w-4/5">
+    <div className="max-w-6xl mx-auto px-4 py-6">
+      <div >
+        <h2 className="text-2xl font-bold mb-6">Manage Your Posts</h2>
     
-<div className="flex md:space-x-4 w-3/5 border-2 items-center bg-gray-100">
-   <div className="flex-1" >
+<div className="flex flex-col md:flex-row  border-2 items-center bg-gray-100">
+   <div className=" w-full md:w-1/2 space-y-3" >
       <input
         type="text"
         placeholder="Title"
-        className="border p-5 w-3/5 mb-2 ml-4 mt-2"
+      className="border p-3 w-full rounded"
         value={newPost.title}
         onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
       />
       <textarea
         placeholder="Content"
-        className="border p-5 w-3/5 mb-2 ml-4 mt-2"
+      className="border p-3 w-full rounded"
         value={newPost.content}
         onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
       />
       <input
   type="file"
   accept="image/*"
-  className="border p-2 w-3/5 mb-2 ml-4 mt-2"
-  onChange={(e) =>
+className="border p-2 w-full"  
+onChange={(e) =>
     setNewPost({ ...newPost, image: e.target.files[0] })
   }
 />
             <input
         type="text"
         placeholder="author"
-        className="border p-5 w-3/5 mb-2 ml-4 mt-2"
+        className="border p-5 w-full rounded"
         value={newPost.author}
         onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
       />
@@ -160,23 +171,25 @@ useEffect(() => {
       <button onClick={handleCreate} className="bg-blue-500 text-white px-4 py-2 mb-2 ">
         Add Post
       </button>
-      <button onClick={generateSummary} className="bg-blue-500 text-white px-4 py-2 ml-8 mb-2">
+      <button onClick={handleGenarateSummary} 
+        className="border p-3 w-full rounded bg-blue-500 text-white">
         AI summary
       </button>
       </div>
 </div>
 
     <div className="p-6 border-bold w-80">
-      <textarea placeholder="AI summary" className="border p-2 w-full md:w-full mb-2" value={summary} readOnly></textarea>
+      <textarea placeholder="AI summary" className="border p-2 h-32 w-full md:w-full mb-2" value={summary} readOnly></textarea>
 </div >
+</div>
 </div>
       <h3 className="text-xl font-bold mt-4">Your Posts</h3>
           {console.log("User posts:", userPosts)}
 
-      {userPosts.length === 0 ? (
+      {!userPosts || userPosts.length === 0 ? (
   <p>No posts found.</p>
 ) : (
-      userPosts.filter((entry)=>entry?._id || entry?.post?._id).
+      userPosts?.filter((entry)=>entry?._id || entry?.post?._id).
       map((entry) => {
          const p = entry.post || entry;
       // userPosts.map((p) => {
