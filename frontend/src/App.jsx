@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard'
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Header from "./components/Header";
+import Profile from "./pages/Profile";
 import { useUserStore } from "./store/userStore";
 import { User } from "lucide-react";
 import Footer from "./components/Footer";
@@ -34,6 +35,7 @@ function App() {
 
           <Route path="/post/:id" element={<PostDetails />} />
           <Route path="/dash" element={<PrivateRoute element={<Dashboard />} />} />
+          <Route path="/profile/:id" element={<Profile />} />
           {/* <Route path="/dash" element={<Dashboard />}  /> */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

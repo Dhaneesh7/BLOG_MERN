@@ -9,7 +9,7 @@ export const useUserStore = create((set, get) => ({
 	loading: false,
 	checkingAuth: true,
 
-	signup: async ({ name, email, password, confirmPassword, Phone }) => {
+	signup: async ({ name, email, password, confirmPassword, phone }) => {
 		set({ loading: true });
 
 		if (password !== confirmPassword) {
@@ -18,7 +18,7 @@ export const useUserStore = create((set, get) => ({
 		}
 
 		try {
-			const res = await axiosInstance.post("/auth/signup", { name, email, password ,Phone });
+			const res = await axiosInstance.post("/auth/signup", { name, email, password , phone });
 			if (res?.data) {
 				set({ user: res.data, loading: false });
 

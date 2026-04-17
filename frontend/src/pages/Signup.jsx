@@ -21,6 +21,7 @@ const Signup = () => {
 				email: "",
 				password: "",
 			  phone:"",
+        confirmPassword: "",
 			});
 			navigate("/login");
 		}else {
@@ -53,6 +54,13 @@ const Signup = () => {
           value={formData.password}
           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
         />
+        <input
+  type="password"
+  placeholder="Confirm Password"
+  onChange={(e) =>
+    setFormData({ ...formData, confirmPassword: e.target.value })
+  }
+/>
           <input
           className="border p-2 w-full mb-2"
           type="phone"

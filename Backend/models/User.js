@@ -25,9 +25,17 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  avatar: {
+    url: String,
+    public_id: String
+  },
 
-
-});
+  bio: {
+    type: String,
+    default: ""
+  },
+ 
+},{ timestamps: true });
 
 // Pre-save hook to hash password before saving to database
 userSchema.pre('save', async function (next) {
