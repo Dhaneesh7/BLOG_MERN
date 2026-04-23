@@ -19,10 +19,10 @@ const userSchema = new mongoose.Schema({
   posts: [
     {
    
-      post : {
+      
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post',
-      },
+      
     },
   ],
   avatar: {

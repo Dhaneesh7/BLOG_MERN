@@ -54,7 +54,7 @@ console.log("post author",posts.author);
   <p>No posts available.</p>
 ) : (
   <div className=" items-start justify-between grid grid-cols-1 md:grid-cols-2 gap-6">
-     {filteredPosts.map((post) => (
+     {/* {filteredPosts.map((post) => (
         <div key={post._id} onClick={()=>handlepost(post)}className="border p-4 mb-4 rounded w-full shadow hover:bg-gray-200 hover:shadow-xl 3/5 cursor-pointer transition duration-300">
           <h3 className="text-xl font-semibold">{post.title}</h3>
           <div className="flex items-center">
@@ -71,7 +71,36 @@ console.log("post author",posts.author);
           <p className="text-gray-500 allign-end text right">By {post.author || "Unknown"}</p>
           <Link to={`/post/${post}`} className="text-blue-500">Read More</Link>
         </div>
-      ))}
+      ))} */}
+      {filteredPosts.map((post) => (
+  <div
+    key={post._id}
+    onClick={() => handlepost(post)}
+    className="border p-4 mb-4 rounded w-full shadow hover:bg-gray-200 cursor-pointer"
+  >
+    <h3 className="text-xl font-semibold">{post.title}</h3>
+
+    {post.image && (
+      <img
+        src={post.image}
+        alt={post.title}
+        className="w-16 h-16 object-cover rounded mr-4"
+      />
+    )}
+
+    <p className="whitespace-normal break-words break-all">
+      {post.content?.slice(0, 30)}...
+    </p>
+
+    <p className="text-gray-500">
+      By {post.author?.name || "Unknown"}
+    </p>
+
+    <Link to={`/post/${post._id}`} className="text-blue-500">
+      Read More
+    </Link>
+  </div>
+))}
       </div>)}
     </div>
   );

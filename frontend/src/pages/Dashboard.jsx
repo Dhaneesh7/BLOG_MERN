@@ -7,7 +7,7 @@ import { useUserStore } from "../store/userStore";
 const Dashboard = () => {
   const{addPost,createPost,deletePost,updatePost,generateSummary}=usePostStore();
   const [editingPostId, setEditingPostId] = useState(null);
-const [editPost, setEditPost] = useState({ title: "", content: "", author: "" });
+const [editPost, setEditPost] = useState({ title: "", content: "" });
   const [search, setSearch] = useState("");
 
   const user = useUserStore((s) => s.user);
@@ -20,7 +20,7 @@ const [editPost, setEditPost] = useState({ title: "", content: "", author: "" })
 const navigate = useNavigate();
   const userPosts = usePostStore((s) => s.userposts);
 
-  const [newPost, setNewPost] = useState({ title: "", content: "",author: "" ,image: null});
+  const [newPost, setNewPost] = useState({ title: "", content: "" ,image: null});
 const [summary, setSummary]=useState("")
   // Fetch user posts on mount
   // useEffect(() => {
@@ -37,7 +37,7 @@ const [summary, setSummary]=useState("")
 
   formData.append("title", newPost.title);
   formData.append("content", newPost.content);
-  formData.append("author", newPost.author);
+  // formData.append("author", newPost.author);
 
   if (newPost.image) {
     formData.append("image", newPost.image);
@@ -45,7 +45,7 @@ const [summary, setSummary]=useState("")
 
      const success = await createPost(formData); // wait for post creation
   if (success) {
-    setNewPost({ title: "", content: "", author: "" ,image: null}); // clear form
+    setNewPost({ title: "", content: "" ,image: null}); // clear form
     fetchPostByUser(userId); // refresh userPosts
   }
   };
@@ -153,13 +153,13 @@ onChange={(e) =>
     setNewPost({ ...newPost, image: e.target.files[0] })
   }
 />
-            <input
+            {/* <input
         type="text"
         placeholder="author"
         className="border p-5 w-full rounded"
         value={newPost.author}
         onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
-      />
+      /> */}
       {newPost.image && (
   <img
     src={URL.createObjectURL(newPost.image)}

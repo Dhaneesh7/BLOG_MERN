@@ -1,205 +1,41 @@
-const { default: mongoose } = require('mongoose');
-const post= require('../models/Post');
-const User= require('../models/User');
+const Post = require('../models/Post');
+const User = require('../models/User');
 const cloudinary = require('../config/cloudinary');
 
+// GET ALL POSTS
 const getposts = async (req, res) => {
   try {
-    const posts = await post.find();
-    res.status(200).json(posts);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching posts', error });
+    const posts = await Post.find()
+      .populate("author", "name email avatar")
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching posts" });
   }
-}
+};
+
+// CREATE POST
 const createPost = async (req, res) => {
   try {
-    const { title, content, author } = req.body;
-    const newPost = new post({ title, content, author });
-    await newPost.save();
-    res.status(201).json(newPost);
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating post', error });
-  }
-}
-// const updatePost = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { title, content } = req.body;
-//     const updatedPost = await post.findByIdAndUpdate(id, { title, content }, { new: true });
-//     if (!updatedPost) {
-//       return res.status(404).json({ message: 'Post not found' });
-//     }
-//     res.status(200).json(updatedPost);
-//     } catch (error) {
-//     res.status(500).json({ message: 'Error updating post', error });   
-// }
-// }
-const updatePost = async (req, res) => {
-  try {
-    const { id } = req.params;
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const { title, content } = req.body;
 
-    let updateData = { title, content };
-
-    // ✅ if new image uploaded
-    if (req.file) {
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "blog_posts" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        stream.end(req.file.buffer);
-      });
-
-      updateData.image = result.secure_url;
+    if (!title?.trim() || !content?.trim()) {
+      return res.status(400).json({ message: "Title & content required" });
     }
-
-    const updatedPost = await post.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    );
-
-    if (!updatedPost) {
-      return res.status(404).json({ message: "Post not found" });
-    }
-
-    res.status(200).json(updatedPost);
-
-  } catch (error) {
-    res.status(500).json({ message: "Error updating post" });
-  }
-};
-const deletePost = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedPost = await post.findByIdAndDelete(id);
-    if (!deletedPost) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-       // Optional: remove this post from any user's posts array
-    await User.updateMany(
-      { "posts.post": id },
-      { $pull: { posts: { post: id } } }
-    );
-    res.status(200).json({ message: 'Post deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error deleting post', error });
-  }
-}
-// const getpostsbyuser = async (req, res) => {
-//   try {
-//     const user = await User.findById(req.params.userId)
-//     .populate({
-//     path: "posts.post",              // populate each 'post' ID
-//     select: "title content author image",  // fetch only needed fields
-//     populate: {                      // optionally populate author details
-//       path: "author",
-//       select: "name"
-//     }
-//   })
-//   .exec();
-//     if (!user) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
-//     res.json(user.posts);
-//   } catch (err) {
-//     res.status(500).json({ message: "Failed to fetch order items", err });
-//   }
-// };
-
-const getpostsbyuser = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.userId)
-      .populate({
-        path: "posts.post",
-        select: "title content author image",
-      });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // ✅ FLATTEN RESPONSE (IMPORTANT)
-    res.json(user.posts.map(p => p.post));
-
-  } catch (err) {
-    res.status(500).json({ message: "Failed to fetch user posts", err });
-  }
-};
-// const addPost = async (req, res) => {
-//   try {
-//     // const { postId} = req.body;
-//     // const {userId} = req.params;
-//     //  // Check productId sent
-//     // if (!postId) return res.status(400).json({ message: "postId is required" });
-//     // if (!mongoose.Types.ObjectId.isValid(userId)) {
-//     //   return res.status(400).json({ message: "Invalid userId" });
-//     // }
-
-
-//     // const user = await User.findById(userId).select('+password');
-//     // if (!user) {
-//     //   return res.status(404).json({ message: "User not found" });
-//     // }
-
-//     // // const existingItem = user.posts.find(post => post.posts.toString() === postId);
-
-//     //   user.posts.push({ post: postId});
-    
-//     // await user.save();
-
-//     // const updatedUser = await User.findById(userId).populate('posts.post');
-//     // res.status(200).json(updatedUser.posts);
-//       const { title, content} = req.body;
-//       const {author} = req.user?._id || req.body; // Assuming author is the logged-in user or provided in the request body
-//   const { userId } = req.params;
-//   // optional: validate mongoose.Types.ObjectId.isValid(userId)
-
-//   const user = await User.findById(userId);
-//   if (!user) return res.status(404).json({ message: 'User not found' });
-
-//   const newPost = await post.create({ title, content, author });
-
-//   user.posts.push({ post: newPost._id });
-//   await user.save();
-
-//   const populated = await User.findById(userId).populate(/*'posts.post'*/{
-//       path: 'posts',      // assuming user.posts is [ObjectId ref 'Post']
-//       populate: {         // also populate author info inside each post
-//         path: 'author',
-//         select: 'name email'
-//       }
-//     }).exec();
-//   res.status(201).json(populated.posts);
-//   } catch (err) {
-//     console.error("Error adding post:", err);
-//     res.status(500).json({ message: "Failed to add orders", error:err.message || err });
-//   }
-// };
-const addPost = async (req, res) => {
-  try {
-    console.log("BODY:", req.body);
-console.log("FILE:", req.file);
-    const { title, content } = req.body;
-    const author = req.user?._id || req.body.author;
-    const { userId } = req.params;
-
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
 
     let imageUrl = "";
 
-    // ✅ HANDLE IMAGE UPLOAD
     if (req.file) {
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           { folder: "blog_posts" },
-          (error, result) => {
-            if (error) reject(error);
+          (err, result) => {
+            if (err) reject(err);
             else resolve(result);
           }
         );
@@ -209,30 +45,207 @@ console.log("FILE:", req.file);
       imageUrl = result.secure_url;
     }
 
-    // ✅ CREATE POST
-    const newPost = await post.create({
+    const post = await Post.create({
       title,
       content,
-      author,
-      image: imageUrl,
+      author: req.user._id,
+      image: imageUrl
     });
 
-    // ✅ LINK TO USER
-    user.posts.push({ post: newPost._id });
-    await user.save();
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: { posts: post._id }
+    });
 
-    res.status(201).json(newPost);
+    res.status(201).json(post);
 
   } catch (err) {
-    console.error("Error adding post:", err);
-    res.status(500).json({ message: "Failed to add post" });
+    console.error("Create post error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
+
+// UPDATE POST
+// const updatePost = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const post = await Post.findById(id);
+//     if (!post) return res.status(404).json({ message: "Post not found" });
+
+//     if (post.author.toString() !== req.user._id.toString()) {
+//       return res.status(403).json({ message: "Unauthorized" });
+//     }
+
+//     let updateData = {};
+
+//     if (req.body.title) updateData.title = req.body.title;
+//     if (req.body.content) updateData.content = req.body.content;
+
+//     if (req.file) {
+//       const result = await new Promise((resolve, reject) => {
+//         const stream = cloudinary.uploader.upload_stream(
+//           { folder: "blog_posts" },
+//           (err, result) => {
+//             if (err) reject(err);
+//             else resolve(result);
+//           }
+//         );
+//         stream.end(req.file.buffer);
+//       });
+
+//       updateData.image = result.secure_url;
+//     }
+
+//     const updatedPost = await Post.findByIdAndUpdate(id, updateData, { new: true });
+
+//     res.json(updatedPost);
+
+//   } catch (err) {
+//     res.status(500).json({ message: "Error updating post" });
+//   }
+// };
+const updatePost = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    const { id } = req.params;
+
+    const post = await Post.findById(id);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    if (post.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    let updateData = {};
+
+    if (req.body.title) updateData.title = req.body.title;
+    if (req.body.content) updateData.content = req.body.content;
+
+    if (req.file) {
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "blog_posts" },
+          (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
+
+      updateData.image = result.secure_url;
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(id, updateData, { new: true });
+
+    res.json(updatedPost);
+
+  } catch (err) {
+    console.error("Update error:", err); // ✅ ADD THIS
+    res.status(500).json({ message: err.message });
+  }
+};
+// DELETE POST
+// const deletePost = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const post = await Post.findById(id);
+//     if (!post) return res.status(404).json({ message: "Post not found" });
+
+//     if (post.author.toString() !== req.user._id.toString()) {
+//       return res.status(403).json({ message: "Unauthorized" });
+//     }
+
+//     await Post.findByIdAndDelete(id);
+
+//     await User.findByIdAndUpdate(req.user._id, {
+//       $pull: { posts: post._id } // ✅ FIXED
+//     });
+
+//     res.json({ message: "Post deleted" });
+
+//   } catch (err) {
+//     res.status(500).json({ message: "Error deleting post" });
+//   }
+// };
+const deletePost = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    const { id } = req.params;
+
+    const post = await Post.findById(id);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    if (post.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    await Post.findByIdAndDelete(id);
+
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { posts: post._id }
+    });
+
+    res.json({ message: "Post deleted" });
+
+  } catch (err) {
+    console.error("Delete error:", err); // ✅ ADD THIS
+    res.status(500).json({ message: err.message });
+  }
+};
+// GET POSTS BY USER
+const getpostsbyuser = async (req, res) => {
+  try {
+    const posts = await Post.find({ author: req.params.userId })
+      .populate("author", "name");
+
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching user posts" });
+  }
+};
+
+// LIKE / UNLIKE
+const toggleLike = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const postId = req.params.postId;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const liked = post.likes.some(id => id.toString() === userId.toString());
+
+    if (liked) {
+      post.likes.pull(userId);
+    } else {
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    res.json({
+      success: true,
+      likesCount: post.likes.length
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: "Error toggling like" });
+  }
+};
+
 module.exports = {
   getposts,
   createPost,
   updatePost,
   deletePost,
-  addPost,
-  getpostsbyuser
+  getpostsbyuser,
+  toggleLike
 };

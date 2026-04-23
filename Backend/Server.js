@@ -11,8 +11,10 @@ const Post = require('./routes/Posts');
 const User = require('./routes/Users');
 const Auth= require('./routes/Auth')
 const aiRoutes = require('./routes/ai');
+const Comment = require('./routes/Comment');
 // import Post from './routes/Posts';
 const connecttodb = require('./config/db');
+// const comment = require('./models/comment');
 // import connecttodb from './config/db';
 
 // const postRoutes=require("./routes/Posts")
@@ -31,5 +33,6 @@ app.use('/api/posts',Post);
 app.use('/api/users',User);
 app.use('/api/auth',Auth);
 app.use('/api/ai',aiRoutes);
+app.use('/api/comments',Comment);
 const PORT = process.env.PORT || 6000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
