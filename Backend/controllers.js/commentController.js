@@ -20,8 +20,8 @@ const addComment = async (req, res) => {
       return res.status(400).json({ message: "Invalid post ID" });
     }
 
-    const postExists = await Post.exists({ _id: postId });
-    if (!postExists) {
+    const post = await Post.findById(postId);
+    if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
 
@@ -31,16 +31,22 @@ const addComment = async (req, res) => {
       post: postId
     });
 
+    await Post.findByIdAndUpdate(postId, {
+      $inc: { commentsCount: 1 }
+    });
+
     const populated = await Comment.findById(comment._id)
       .populate('user', 'name avatar');
 
-    res.status(201).json(populated);
+    res.status(201).json({
+      success: true,
+      comment: populated
+    });
 
   } catch (err) {
     res.status(500).json({ message: "Failed to add comment" });
   }
 };
-
 
 // GET COMMENTS
 const getCommentsByPost = async (req, res) => {

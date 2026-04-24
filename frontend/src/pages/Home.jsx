@@ -1,7 +1,7 @@
  import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { usePostStore } from "../store/postStore";
-import { shallow } from "zustand/shallow";
+// import { shallow } from "zustand/shallow";
 
 const Home = () => {
   const [search, setSearch] = useState("");
@@ -95,8 +95,11 @@ console.log("post author",posts.author);
     <p className="text-gray-500">
       By {post.author?.name || "Unknown"}
     </p>
-
-    <Link to={`/post/${post._id}`} className="text-blue-500">
+<div className="flex justify-between mt-2 text-sm text-gray-600">
+  <span>❤️ {post.likes?.length || 0}</span>
+  <span>💬 {post.commentsCount || 0}</span>
+</div>
+    <Link to={`/post/${post._id}`} onClick={(e)=>{e.stopPropagation()}} className="text-blue-500">
       Read More
     </Link>
   </div>

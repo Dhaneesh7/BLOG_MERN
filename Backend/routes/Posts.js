@@ -12,4 +12,5 @@ router.post("/",protectRoute,upload.single("image"),Post.createPost);
 // router.post("/:userId", protectRoute, upload.single("image"), Post.createPost);
 router.put("/:id", protectRoute, upload.single("image"), Post.updatePost);
 router.delete("/:id", protectRoute, Post.deletePost);
+router.put("/like/:postId", protectRoute, Post.toggleLike);
 module.exports = router;

@@ -46,10 +46,12 @@ const res = await axiosInstance.post(`/posts`, postData);
   // ✅ FETCH ALL POSTS
   fetchAllposts: async () => {
     try {
+      set({ loading: true });
       const res = await axiosInstance.get("/posts");
-      set({ posts: res.data });
+      set({ posts: res.data, loading: false });
     } catch (error) {
       console.error(error);
+      set({ loading: false });
     }
   },
 
@@ -74,6 +76,13 @@ const res = await axiosInstance.post(`/posts`, postData);
       //   },
       // });
       await axiosInstance.put(`/posts/${id}`, updatedData);
+      set((state) => ({
+  posts: state.posts.map((post) =>
+    post._id === id ? get.data : post
+  ),
+}));
+
+
 
       toast.success("Post updated");
       return true;
@@ -94,6 +103,7 @@ const res = await axiosInstance.post(`/posts`, postData);
         userposts: state.userposts.filter(
           (post) => post._id !== postId
         ),
+        posts: state.posts.filter((post) => post._id !== postId)
       }));
 
       toast.success("Post deleted");
@@ -103,6 +113,34 @@ const res = await axiosInstance.post(`/posts`, postData);
       toast.error("Delete failed");
     }
   },
+  toggleLike: async (postId) => {
+  try {
+    const res = await axiosInstance.put(`/posts/like/${postId}`);
+
+    const { liked, likesCount } = res.data;
+
+    // update posts in store
+    set((state) => ({
+      posts: state.posts.map((post) =>
+        post._id === postId
+          ? {
+              ...post,
+              likes: liked
+                ? [...(post.likes || []), "temp"] // UI count fix
+                : post.likes.slice(0, -1),
+              liked,
+            }
+          : post
+      ),
+    }));
+
+    return res.data;
+
+  } catch (error) {
+    console.error(error);
+    toast.error("Like failed");
+  }
+},
 
   // ✅ AI SUMMARY
   generateSummary: async (content) => {

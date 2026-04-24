@@ -226,13 +226,17 @@ const toggleLike = async (req, res) => {
     if (liked) {
       post.likes.pull(userId);
     } else {
+      if(!post.likes.includes(userId)) {
+      
       post.likes.push(userId);
+      }
     }
 
     await post.save();
 
     res.json({
       success: true,
+      liked: !liked,
       likesCount: post.likes.length
     });
 
