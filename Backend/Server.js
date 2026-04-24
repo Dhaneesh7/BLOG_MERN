@@ -23,12 +23,16 @@ const app = express();
 app.use(cookieParser()); 
 app.use(cors(
     {
-    origin: "http://localhost:3000", // your frontend URL
+    // origin: "http://localhost:3000", // your frontend URL
+    origin: process.env.CLIENT_URL, // your frontend URL from .env
     credentials: true,
     }
 ));
 app.use(express.json());
 connecttodb();
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
 app.use('/api/posts',Post);
 app.use('/api/users',User);
 app.use('/api/auth',Auth);
