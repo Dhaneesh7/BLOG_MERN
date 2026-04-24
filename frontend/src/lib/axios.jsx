@@ -14,10 +14,9 @@ import axios from "axios";
 
 const MODE = process.env.REACT_APP_MODE;
 const baseURL =
-  MODE === "development"
+  process.env.REACT_APP_MODE === "development"
     ? "http://localhost:6000/api"
-    : "/api";
-
+    : "https://blog-mern-6ov2.onrender.com/api";
 const axiosInstance = axios.create({
   baseURL,
   withCredentials: true,
