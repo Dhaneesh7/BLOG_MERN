@@ -29,17 +29,23 @@ const setCookies = (res, accessToken, refreshToken) => {
 		httpOnly: true,
 		// secure: process.env.NODE_ENV === "production",
 		// secure: process.env.NODE_ENV === "production",
-		secure:isProduction,
+		// secure:isProduction,
 		// sameSite: "none",
 		// sameSite: "strict",
-		sameSite: isProduction ? "none" : "lax",
+		// sameSite: isProduction ? "none" : "lax",
+		 secure: true,        // 🔥 FORCE TRUE
+    sameSite: "none",  
+	path:"/",
 		maxAge: 15 * 60 * 1000,
 	});
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
-		secure: isProduction,
+		// secure: isProduction,
 		// sameSite: "strict",
-		sameSite: isProduction ? "none" : "lax",
+		// sameSite: isProduction ? "none" : "lax",
+		  secure: true,
+    sameSite: "none",
+    path: "/",
 		maxAge: 7 * 24 * 60 * 60 * 1000,
 	});
 };
