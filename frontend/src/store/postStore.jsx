@@ -48,9 +48,21 @@ const res = await axiosInstance.post(`/posts`, postData);
     try {
       set({ loading: true });
       const res = await axiosInstance.get("/posts");
-      set({ posts: res.data, loading: false });
+       console.log("API RESPONSE:", res.data);
+ let postsData = [];
+    // ✅ Handle all cases safely
+    if (Array.isArray(res.data)) {
+      postsData = res.data;
+    } else if (Array.isArray(res.data.posts)) {
+      postsData = res.data.posts;
+    } else {
+      console.error("❌ Unexpected response format:", res.data);
+    }
+      // set({ posts: res.data, loading: false });
+      set({posts:postsData,loading:false});
     } catch (error) {
       console.error(error);
+      
       set({ loading: false });
     }
   },
