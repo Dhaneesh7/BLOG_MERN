@@ -21,10 +21,24 @@ const connecttodb = require('./config/db');
 dotenv.config();
 const app = express();
 app.use(cookieParser()); 
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://blog-mern-8d1b.vercel.app",
+];
+
 app.use(cors(
     {
     // origin: "http://localhost:3000", // your frontend URL
-    origin: process.env.CLIENT_URL, // your frontend URL from .env
+    // origin: process.env.CLIENT_URL, // your frontend URL from .env
+    // credentials: true,
+      origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     }
 ));
