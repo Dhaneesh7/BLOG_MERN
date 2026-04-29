@@ -108,9 +108,21 @@ const logout = async (req, res) => {
 			const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 			await redis.del(`refresh_token:${decoded.userId}`);
 		}
+const isProduction = process.env.NODE_ENV === "production";
 
-		res.clearCookie("accessToken");
-		res.clearCookie("refreshToken");
+res.clearCookie("accessToken", {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+});
+
+res.clearCookie("refreshToken", {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+});
+		// res.clearCookie("accessToken");
+		// res.clearCookie("refreshToken");
 		res.json({ message: "Logged out successfully" });
 	} catch (error) {
 		console.log("Error in logout controller", error.message);
@@ -138,7 +150,8 @@ const refreshToken = async (req, res) => {
 		res.cookie("accessToken", newaccessToken, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			// sameSite: "strict",
+			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 			maxAge: 15 * 60 * 1000,
 		});
 
